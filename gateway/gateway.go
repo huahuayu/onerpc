@@ -133,7 +133,7 @@ func chainHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func StartGatewayServer() {
-	http.HandleFunc("/chain/", loggerMiddleware(authMiddleware(cacheMiddleware(corsMiddleware(chainHandler)))))
+	http.HandleFunc("/chain/", loggerMiddleware(authMiddleware(cacheMiddleware(chainHandler))))
 	port := *flags.Port
 	logger.Logger.Info().Msgf("starting gateway server on port %s", port)
 	generateAndStoreAPIKeys()
@@ -354,25 +354,6 @@ func authMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// Proceed to the next handler if rate limit is not exceeded
-		next.ServeHTTP(w, r)
-	}
-}
-
-// CORS middleware to handle preflight requests and add appropriate headers
-func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// Set CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "*") // Adjust this to your needs
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, Cache-Control")
-
-		// Handle the OPTIONS method for CORS preflight requests
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		// Call the next handler
 		next.ServeHTTP(w, r)
 	}
 }

@@ -12,7 +12,9 @@ export WEBROOT_DIR="/var/www/html" # Export added here
 
 # Ensure the webroot directory exists for the HTTP challenge
 sudo mkdir -p "$WEBROOT_DIR/.well-known/acme-challenge"
-sudo chown -R $USER:$USER "$WEBROOT_DIR"
+sudo chown -R www-data:www-data "$WEBROOT_DIR"
+sudo find ${WEBROOT_DIR} -type d -exec chmod 755 {} \;
+sudo find ${WEBROOT_DIR} -type f -exec chmod 644 {} \;
 
 # Obtain SSL certificates for both main domain and subdomain
 sudo "$LEGO_PATH" --email="$EMAIL" --domains="$DOMAIN" --domains="$PROMETHEUS_SUBDOMAIN" --http --http.webroot "$WEBROOT_DIR" --accept-tos --path="/etc/letsencrypt" run
@@ -61,11 +63,41 @@ server {
     listen 443 ssl http2;
     server_name $DOMAIN;
 
+    root $WEBROOT_DIR;
+
     ssl_certificate $CERT_DIR/${DOMAIN}.crt;
     ssl_certificate_key $CERT_DIR/${DOMAIN}.key;
 
+    # Explicitly handle requests to the root URL or index.html
+    location = / {
+        try_files /index.html =404;
+    }
+
+    location = /index.html {
+        try_files $uri =404;
+    }
+
+    # Serve static files directly for specific extensions
+    location ~* \.(html|css|js|png|jpg|jpeg|gif|ico)$ {
+        try_files $uri =404;
+    }
+
     # Proxy requests to onerpc service
     location / {
+        # Add CORS headers
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT, DELETE' always;
+        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
+        add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range' always;
+
+        # Handle OPTIONS request
+        if (\$request_method = 'OPTIONS') {
+            add_header 'Access-Control-Max-Age' 1728000;
+            add_header 'Content-Type' 'text/plain charset=UTF-8';
+            add_header 'Content-Length' 0;
+            return 204;
+        }
+
         proxy_pass http://localhost:8080;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
@@ -82,6 +114,20 @@ server {
     ssl_certificate_key $CERT_DIR/${DOMAIN}.key;
 
     location / {
+        # Add CORS headers
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT, DELETE' always;
+        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
+        add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range' always;
+
+        # Handle OPTIONS request
+        if (\$request_method = 'OPTIONS') {
+            add_header 'Access-Control-Max-Age' 1728000;
+            add_header 'Content-Type' 'text/plain charset=UTF-8';
+            add_header 'Content-Length' 0;
+            return 204;
+        }
+
         proxy_pass http://localhost:9090;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;

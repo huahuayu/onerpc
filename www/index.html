@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>1rpc - Opensource Unified Gateway for EVM Chains</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+        }
+        .response-container {
+            background-color: #f0f0f0; /* Lighter background for better readability */
+            margin-top: 20px;
+            padding: 10px;
+            word-wrap: break-word;
+            white-space: pre-wrap; /* Ensures formatting is kept */
+            overflow: auto;
+            font-family: monospace;
+        }
+        .response-container {
+            min-height: 200px; /* Consistent with input box size */
+            border: 1px solid #ddd; /* Adds a border similar to input box */
+        }
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            margin-top: 10px;
+            font-family: monospace;
+            background-color: #f0f0f0; /* Matches the response container background */
+            border: 1px solid #ddd; /* Consistent border with response container */
+        }
+        #curl {
+            min-height: 160px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Welcome to 1rpc</h1>
+    <p>
+        <a href="https://1rpc.dev" target="_blank">1rpc</a> is an open-source unified gateway that integrates multiple free RPCs to provide:
+    </p>
+    <ul>
+        <li>High availability</li>
+        <li>Better performance</li>
+        <li>Untraceable privacy</li>
+    </ul>
+    <p>
+        Currently there are <strong>1276 chains</strong> with
+        <strong>2693 free rpcs</strong> integrated.
+    </p>
+    <p>
+        The numbers are automatically growing with
+        <a href="https://chainlist.org" target="_blank">chainlist.org</a> and
+        <a href="https://chainid.network" target="_blank">chainid.network</a>.
+    </p>
+    <p>
+        Learn more on <a href="https://github.com/huahuayu/onerpc" target="_blank">GitHub</a>.
+    </p>
+
+    <h2>Common issues with free RPCs</h2>
+    <ul>
+        <li>Rate limits leading to low availability.</li>
+        <li>Single points of failure causing unreliability.</li>
+        <li>Complexity in managing multiple RPCs and handling errors.</li>
+        <li>Privacy concerns for using specific RPCs.</li>
+    </ul>
+
+    <h2>How 1rpc solves these problems</h2>
+    <ul>
+        <li>RPC pool increase availability & privacy.</li>
+        <li>Cache management improves the performance.</li>
+        <li>Support additional custom RPCs (besides the free ones).</li>
+        <li>Load balancing.</li>
+        <li>Retry mechanism.</li>
+    </ul>
+
+    <h2>Try it out</h2>
+    <p>The endpoint of 1rpc is https://1rpc.dev/chain/${chainID}, for the chainID, please refer to <a href="https://chainlist.org" target="_blank">chainlist.org</a>. </p>
+    <p>
+        Try to modify the sample request and send.
+    </p>
+    <textarea id="jsonInput">
+{
+  "jsonrpc": "2.0",
+  "method": "eth_getTransactionByHash",
+  "params": ["0xf65645f28157cebb6fa4bc9c9e299045626fcf7ae450755a7f64cd243a01bff5"],
+  "id": 1
+}</textarea>
+    <button onclick="sendRequest()">Send JSON RPC Request</button>
+    <div>
+        <p><strong>Response:</strong></p>
+        <div class="response-container" id="response"></div>
+    </div>
+
+    <h2>Try it locally</h2>
+    <p>Use this cURL command:</p>
+    <textarea id="curl">
+curl --location 'https://1rpc.dev/chain/1' \
+--header 'Content-Type: application/json' \
+--data '{
+    "jsonrpc":"2.0",
+    "method":"eth_getTransactionByHash",
+    "params":[
+        "0xf65645f28157cebb6fa4bc9c9e299045626fcf7ae450755a7f64cd243a01bff5"
+    ],
+    "id":1
+}'
+    </textarea>
+</div>
+    <script>
+        function sendRequest() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "https://1rpc.dev/chain/1", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    var responseContainer = document.getElementById("response");
+                    if (xhr.status === 200) {
+                        responseContainer.textContent = JSON.stringify(
+                            JSON.parse(xhr.responseText),
+                            null,
+                            2
+                        );
+                    } else {
+                        responseContainer.textContent =
+                            "Failed: HTTP Status " +
+                            xhr.status +
+                            " - Response: " +
+                            xhr.responseText;
+                    }
+                }
+            };
+            var data = document.getElementById("jsonInput").value;
+            try {
+                JSON.parse(data); // Validates JSON input
+                xhr.send(data);
+            } catch (e) {
+                document.getElementById("response").textContent =
+                    "Invalid JSON format: " + e.message;
+            }
+        }
+    </script>
+</body>
+</html>
