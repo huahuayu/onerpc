@@ -1,0 +1,37 @@
+version: '2.4'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:${GATEWAY_PORT}"
+    environment: # Pulls from .env file
+      GATEWAY_PORT: ${GATEWAY_PORT}
+      METRICS: ${METRICS}
+      METRICS_PORT: ${METRICS_PORT}
+      RPCS: ${RPCS}
+      FALLBACKS: ${FALLBACKS}
+      ENABLE_RATE_LIMIT: ${ENABLE_RATE_LIMIT}
+    volumes:
+      - ./apikey:/root/apikey # Volume for generated apikey
+    command: ["./app", "--port=${GATEWAY_PORT}", "--rpcHealthCheckInterval=5", "--logCaller=true"] # Example of passing flags
+    networks:
+      - myNetwork
+
+  prometheus:
+    image: prom/prometheus:v2.35.0
+    volumes:
+      - ./metrics/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    networks:
+      - myNetwork
+    depends_on:
+      - app
+
+networks:
+  myNetwork:
