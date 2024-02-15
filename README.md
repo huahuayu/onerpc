@@ -112,3 +112,7 @@ eth/eth_test.go
 The workload is distributed to multiple rpcs effectively, the gateway handle the requests quite smoothly.
 
 Especially if you configured fallback rpcs (check the `--fallback` flag), the gateway can be even more robust.
+
+## License
+
+[MIT](https://github.com/huahuayu/onerpc/blob/main/license.txt)
