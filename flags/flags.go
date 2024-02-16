@@ -38,7 +38,7 @@ var (
 	// Flags with default values
 	Replica                = flag.Int("replica", 1, "replica rpcs to send request")
 	cacheableMethods       = flag.String("cacheableMethods", "eth_getTransactionByHash,eth_getBlockByNumber,eth_getTransactionReceipt,eth_getBlockReceipts,eth_getTransactionByBlockHashAndIndex,eth_getTransactionByBlockNumberAndIndex,eth_getBlockByHash,eth_getBlockTransactionCountByHash,eth_getBlockTransactionCountByNumber", "Cacheable methods")
-	CacheTTL               = flag.Uint("cache_ttl", 60, "Cache TTL in minutes")
+	CacheTTL               = flag.Uint("cache_ttl", 10, "Cache TTL in minutes")
 	LogLevel               = flag.Int("logLevel", 1, "Log level, -1: trace, 0: debug, 1: info, 2: warn, 3: error, 4: fatal, 5: panic")
 	LogCaller              = flag.Bool("logCaller", false, "Log caller")
 	RPCTimeout             = flag.Int("rpcTimeout", 20, "RPC timeout in seconds")
