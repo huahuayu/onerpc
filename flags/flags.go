@@ -25,8 +25,8 @@ func (r RPCGroup) ToRPCMap() map[int64][]string {
 }
 
 var (
-	// Flags that can be set by either env variables or flags
-	Port                 = flag.String("port", "", "RPC gateway port, e.g. 8080")
+	// Flags that can also be load in .env file
+	Port                 = flag.String("port", "8080", "RPC gateway port, e.g. 8080")
 	Metrics              = flag.Bool("metrics", false, "Enable prometheus metrics")
 	MetricsPort          = flag.String("metricsPort", "", "Metrics server port")
 	rpcs                 = flag.String("rpcs", "", "Additional rpcs besides the public ones, e.g. [{\"chainID\":1,\"rpc\":[\"https://eth.llamarpc.com\",\"https://rpc.builder0x69.io\"]}]")
@@ -35,7 +35,8 @@ var (
 	RateLimitWithoutAuth = flag.Int("rateLimitWithoutAuth", 100, "Rate limit per second without auth")
 	RateLimitWithAuth    = flag.Int("rateLimitWithAuth", 0, "Rate limit per second with auth (0: no limit)")
 
-	// Flags with default values
+	// Flags that do not exist in .env.example file
+	Pprof                  = flag.Bool("pprof", false, "Enable pprof")
 	Replica                = flag.Int("replica", 1, "replica rpcs to send request")
 	cacheableMethods       = flag.String("cacheableMethods", "eth_getTransactionByHash,eth_getBlockByNumber,eth_getTransactionReceipt,eth_getBlockReceipts,eth_getTransactionByBlockHashAndIndex,eth_getTransactionByBlockNumberAndIndex,eth_getBlockByHash,eth_getBlockTransactionCountByHash,eth_getBlockTransactionCountByNumber", "Cacheable methods")
 	CacheTTL               = flag.Uint("cache_ttl", 10, "Cache TTL in minutes")
@@ -51,7 +52,7 @@ var (
 )
 
 func Init() {
-	// Load .env file
+	// Load .env file (optional) if it exists
 	err := godotenv.Overload()
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -60,7 +61,10 @@ func Init() {
 		} else {
 			log.Fatalf("error loading .env file: " + err.Error())
 		}
+	} else {
+		log.Println("Loading .env file")
 	}
+
 	flag.Parse()
 	// Check if required flags are provided
 	if *Port == "" {

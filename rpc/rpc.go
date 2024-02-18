@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/huahuayu/onerpc/flags"
@@ -25,6 +26,9 @@ type RPC struct {
 	Status  Status
 	mutex   sync.Mutex
 	client  *http.Client
+	ctx     context.Context
+	cancel  context.CancelFunc
+	ticker  *time.Ticker
 }
 
 type RPCs []*RPC
@@ -37,21 +41,36 @@ const (
 	Down    Status = "Down"
 )
 
+var httpClientCache = make(map[string]*http.Client)
+
 func NewRPC(chainID int64, url string) *RPC {
+	ctx, cancel := context.WithCancel(context.Background())
+	ticker := time.NewTicker(time.Duration(*flags.RPCHealthCheckInterval) * time.Minute)
+	// Use http client cache to avoid creating too many http clients
+	var httpClient *http.Client
+	if _, ok := httpClientCache[url]; !ok {
+		httpClient = &http.Client{
+			Timeout: time.Duration(*flags.RPCTimeout) * time.Second,
+			Transport: &http.Transport{
+				MaxIdleConns:       5,
+				IdleConnTimeout:    5 * time.Minute,
+				DisableCompression: true,
+			},
+		}
+		httpClientCache[url] = httpClient
+	} else {
+		httpClient = httpClientCache[url]
+	}
 	return &RPC{
 		ChainID: chainID,
 		URL:     url,
 		Height:  0,
 		Status:  Unknown,
 		mutex:   sync.Mutex{},
-		client: &http.Client{
-			Timeout: time.Duration(*flags.RPCTimeout) * time.Second,
-			Transport: &http.Transport{
-				MaxIdleConns:       10,
-				IdleConnTimeout:    30 * time.Second,
-				DisableCompression: true,
-			},
-		},
+		client:  httpClient,
+		ctx:     ctx,
+		cancel:  cancel,
+		ticker:  ticker,
 	}
 }
 
@@ -236,28 +255,28 @@ func (rpcs RPCs) GetRandomRPC(num int, exclude RPCs) RPCs {
 }
 
 func (rpcs RPCs) RefreshRpcStatus() {
-	wg := sync.WaitGroup{}
 	for _, rpc := range rpcs {
-		wg.Add(1)
 		go func(rpc *RPC) {
-			defer wg.Done()
 			rpc.updateHeight()
-		}(rpc)
-	}
-	wg.Wait()
-
-	// Start a goroutine to update the rpc status every 1 min
-	ticker := time.NewTicker(time.Duration(*flags.RPCHealthCheckInterval) * time.Minute)
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				for _, rpc := range rpcs {
-					go rpc.updateHeight()
+			for {
+				select {
+				case <-rpc.ticker.C:
+					rpc.updateHeight()
+				case <-rpc.ctx.Done():
+					rpc.ticker.Stop()
+					return
 				}
 			}
+		}(rpc)
+	}
+}
+
+func (rpcs RPCs) StopRefreshRpcStatus() {
+	for _, rpc := range rpcs {
+		if rpc.cancel != nil {
+			rpc.cancel()
 		}
-	}()
+	}
 }
 
 // SendRequest sends JSON RPC request by selecting a random RPC from the list of good status RPCs

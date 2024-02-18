@@ -7,7 +7,6 @@ import (
 	"github.com/huahuayu/onerpc/logger"
 	"github.com/huahuayu/onerpc/rpc"
 	"os"
-	"sync"
 	"time"
 )
 
@@ -32,12 +31,12 @@ func RefreshChainInfo() {
 }
 
 func updateChainInfo() error {
-	startTime := time.Now()
 	var RPCMap map[int64]rpc.RPCs
 	_, _, RPCMap, err := chainlist.GetAllChainInfo()
 	if err != nil {
 		return err
 	}
+	oldRPCMap := global.RPCMap
 	global.RPCMap = RPCMap
 
 	fallbackMap := make(map[int64]rpc.RPCs)
@@ -45,31 +44,37 @@ func updateChainInfo() error {
 		rpcs := rpc.NewRPCs(chainID, rpcList)
 		fallbackMap[chainID] = rpcs
 	}
+	oldFallbackMap := global.FallbackMap
 	global.FallbackMap = fallbackMap
 
+	// Stop the old rpcs refresh routines
+	for _, rpcs := range oldRPCMap {
+		if rpcs != nil {
+			rpcs.StopRefreshRpcStatus()
+		}
+	}
+	for _, rpcs := range oldFallbackMap {
+		if rpcs != nil {
+			rpcs.StopRefreshRpcStatus()
+		}
+	}
+
 	var (
-		wg                sync.WaitGroup
 		totalRPCs         int
 		totalFallbackRPCs int
 	)
 	for _, rpcs := range RPCMap {
 		totalRPCs += len(rpcs)
-		wg.Add(1)
 		go func(rpcs rpc.RPCs) {
-			defer wg.Done()
 			rpcs.RefreshRpcStatus()
 		}(rpcs)
 	}
 	for _, rpcs := range fallbackMap {
 		totalFallbackRPCs += len(rpcs)
-		wg.Add(1)
 		go func(rpcs rpc.RPCs) {
-			defer wg.Done()
 			rpcs.RefreshRpcStatus()
 		}(rpcs)
 	}
-	wg.Wait()
-	elapsedTime := time.Since(startTime)
-	logger.Logger.Info().Msgf("%d chains with %d rpcs, %d fallback rpcs refreshed in %v", len(RPCMap), totalRPCs, totalFallbackRPCs, elapsedTime)
+	logger.Logger.Info().Msgf("%d chains with %d rpcs, and %d fallback rpcs refreshed", len(RPCMap), totalRPCs, totalFallbackRPCs)
 	return nil
 }

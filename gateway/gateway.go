@@ -135,8 +135,9 @@ func chainHandler(w http.ResponseWriter, r *http.Request) {
 func StartGatewayServer() {
 	http.HandleFunc("/chain/", loggerMiddleware(authMiddleware(cacheMiddleware(chainHandler))))
 	port := *flags.Port
-	logger.Logger.Info().Msgf("starting gateway server on port %s", port)
-	generateAndStoreAPIKeys()
+	if *flags.EnableRateLimit {
+		generateAndStoreAPIKeys()
+	}
 	logger.Logger.Info().Msgf("Starting gateway server on port %s", port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		panic("Failed to start server: " + err.Error())
