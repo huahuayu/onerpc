@@ -3,154 +3,293 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>1rpc - Opensource Unified Gateway for EVM Chains</title>
+    <title>1rpc.dev - Open-source RPC Gateway for EVM Chains</title>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+            rel="stylesheet"
+    />
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+    />
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: "Roboto", sans-serif;
+            margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-color: #f7f8fa;
             color: #333;
         }
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: auto;
             background: white;
-            padding: 20px;
+            padding: 40px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
         }
-        .response-container {
-            background-color: #f0f0f0; /* Lighter background for better readability */
-            margin-top: 20px;
-            padding: 10px;
-            word-wrap: break-word;
-            white-space: pre-wrap; /* Ensures formatting is kept */
-            overflow: auto;
-            font-family: monospace;
+        h1,
+        h2 {
+            color: #2c3e50;
         }
-        .response-container {
-            min-height: 200px; /* Consistent with input box size */
-            border: 1px solid #ddd; /* Adds a border similar to input box */
+        p,
+        li {
+            line-height: 1.6;
         }
-        textarea {
-            width: 100%;
-            min-height: 100px;
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 20px;
+        }
+        ul li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #007bff;
+        }
+        .hero-section {
+            background: linear-gradient(to right, #007bff, #00bfff);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .hero-section h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .hero-section p {
+            font-size: 1.2em;
             margin-top: 10px;
-            font-family: monospace;
-            background-color: #f0f0f0; /* Matches the response container background */
-            border: 1px solid #ddd; /* Consistent border with response container */
         }
-        #curl {
-            min-height: 160px;
+        .response-container {
+            width: calc(100% - 30px); /* Adjust based on parent padding */
+            min-height: 200px; /* Make consistent height if needed */
+            margin-top: 5px;
+            font-family: monospace;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 0px;
+            border-radius: 5px;
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+            overflow-x: auto; /* Allows horizontal scrolling if content overflows */
+            white-space: pre-wrap; /* Ensures that data wraps and respects newlines and spaces */
+            word-wrap: break-word; /* Ensures long words do not cause overflow */
+        }
+
+        .response-container pre {
+            margin: 0; /* Removes default margin from <pre> */
+            padding: 0; /* Ensures padding is consistent with the container */
+        }
+
+        textarea {
+            width: calc(100% - 30px); /* Adjust based on parent padding */
+            min-height: 130px;
+            margin-top: 5px;
+            font-family: monospace;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 0px;
+            border-radius: 5px;
+            max-width: 100%; /* Ensure max width is set to 100% */
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:active {
+            background-color: #004085; /* Darker shade for click effect */
+            transform: scale(0.98); /* Slightly scale down the button */
+            box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125); /* Inner shadow for depth */
+        }
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            font-size: 0.9em;
+            background-color: #f7f8fa;
+            border-top: 1px solid #e7e7e7;
+        }
+        .feature-icon {
+            color: #007bff;
+            margin-right: 10px;
+            width: 30px; /* Set a fixed width for icons */
+            text-align: center; /* Ensure icons are centered in their space */
+        }
+        .features li {
+            display: flex;
+            align-items: center;
+        }
+        .github-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .github-icon {
+            margin-right: 5px;
         }
     </style>
 </head>
 <body>
+<div class="hero-section">
+    <h1>1rpc.dev</h1>
+    <p>
+        Free open-source RPC gateway for all Ethereum compatible EVM Chains.
+    </p>
+</div>
+
 <div class="container">
-    <h1>Welcome to 1rpc</h1>
+    <h2>Get Started</h2>
     <p>
-        <a href="https://1rpc.dev" target="_blank">1rpc</a> is an open-source unified gateway that integrates multiple free RPCs to provide:
-    </p>
-    <ul>
-        <li>High availability</li>
-        <li>Better performance</li>
-        <li>Untraceable privacy</li>
-    </ul>
-    <p>
-        Currently there are <strong>1276 chains</strong> with
-        <strong>2693 free rpcs</strong> integrated.
-    </p>
-    <p>
-        The numbers are automatically growing with
-        <a href="https://chainlist.org" target="_blank">chainlist.org</a> and
-        <a href="https://chainid.network" target="_blank">chainid.network</a>.
-    </p>
-    <p><a href="https://1rpc.dev" target="_blank">1rpc</a> is a public gateway, but you can deploy your own as well.</p>
-    <p>
-        Learn more on <a href="https://github.com/huahuayu/onerpc" target="_blank">GitHub</a>.
+        Free RPC <strong>https://1rpc.dev/chain/$chainID</strong> for all
+        Ethereum compatible EVM Chains
     </p>
 
-    <h2>Common issues with free RPCs</h2>
-    <ul>
-        <li>Rate limits leading to low availability.</li>
-        <li>Single points of failure causing unreliability.</li>
-        <li>Complexity in managing multiple RPCs and handling errors.</li>
-        <li>Privacy concerns for using specific RPCs.</li>
+    <h2>Key Features</h2>
+    <ul class="features">
+        <li><i class="fas fa-bolt feature-icon"></i>High availability</li>
+        <li><i class="fas fa-lock feature-icon"></i>Untraceable privacy</li>
+        <li>
+            <i class="fas fa-layer-group feature-icon"></i>1276+ chains supported
+        </li>
+        <li><i class="fas fa-gift feature-icon"></i>Permanent free</li>
     </ul>
 
-    <h2>How 1rpc solves these problems</h2>
+    <h2>Common Issues with Free RPCs</h2>
     <ul>
-        <li>RPC pool increase availability & privacy.</li>
-        <li>Cache management improves the performance.</li>
-        <li>Support additional custom RPCs (besides the free ones).</li>
-        <li>Load balancing.</li>
-        <li>Retry mechanism.</li>
+        <li><i class="fas fa-times-circle feature-icon"></i>Rate limits</li>
+        <li>
+            <i class="fas fa-exclamation-triangle feature-icon"></i>Low
+            availability
+        </li>
+        <li>
+            <i class="fas fa-cogs feature-icon"></i>Complexity in managing
+            multiple RPCs
+        </li>
+        <li><i class="fas fa-user-secret feature-icon"></i>Privacy concerns</li>
     </ul>
 
-    <h2>Try it out</h2>
-    <p>The endpoint of 1rpc is https://1rpc.dev/chain/${chainID}, for the chainID, please refer to <a href="https://chainlist.org" target="_blank">chainlist.org</a>. </p>
-    <p>
-        Try to modify the sample request and send.
-    </p>
+    <h2>Our Solutions</h2>
+    <ul>
+        <li>
+            <i class="fas fa-network-wired feature-icon"></i>High availability and privacy by RPC pool
+        </li>
+        <li>
+            <i class="fas fa-tachometer-alt feature-icon"></i>Cache for high
+            frequent read only RPC calls
+        </li>
+        <li>
+            <i class="fas fa-plug feature-icon"></i>Support for additional custom
+            RPCs
+        </li>
+        <li>
+            <i class="fas fa-retweet feature-icon"></i>Effective load balancing
+            and retry mechanisms
+        </li>
+    </ul>
+
+    <h2>Try it Out</h2>
+    <p>Take ethereum mainnet (https://1rpc.dev/chain/1) as an example</p>
     <textarea id="jsonInput">
 {
   "jsonrpc": "2.0",
   "method": "eth_getTransactionByHash",
   "params": ["0xf65645f28157cebb6fa4bc9c9e299045626fcf7ae450755a7f64cd243a01bff5"],
   "id": 1
-}</textarea>
+}</textarea
+    >
     <button onclick="sendRequest()">Send JSON RPC Request</button>
     <div>
         <p><strong>Response:</strong></p>
         <div class="response-container" id="response"></div>
     </div>
 
-    <h2>Try it locally</h2>
-    <p>Use this cURL command:</p>
-    <textarea id="curl">
-curl --location 'https://1rpc.dev/chain/1' \
---header 'Content-Type: application/json' \
---data '{
-    "jsonrpc":"2.0",
-    "method":"eth_getTransactionByHash",
-    "params":[
-        "0xf65645f28157cebb6fa4bc9c9e299045626fcf7ae450755a7f64cd243a01bff5"
-    ],
-    "id":1
-}'
-    </textarea>
+    <h2>Feedback</h2>
+    <p>
+        <a href="https://github.com/huahuayu/onerpc/issues/new" target="_blank"
+        >Feedbacks</a
+        >
+        are welcome, please let me know how to improve.
+    </p>
+
+    <div class="github-link">
+        <i class="fab fa-github github-icon"></i>
+        <a href="https://github.com/huahuayu/onerpc" target="_blank"
+        >Check out on GitHub</a
+        >
+    </div>
 </div>
-    <script>
-        function sendRequest() {
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "https://1rpc.dev/chain/1", true);
-            xhr.setRequestHeader("Content-Type", "application/json");
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    var responseContainer = document.getElementById("response");
-                    if (xhr.status === 200) {
-                        responseContainer.textContent = JSON.stringify(
-                            JSON.parse(xhr.responseText),
-                            null,
-                            2
-                        );
-                    } else {
-                        responseContainer.textContent =
-                            "Failed: HTTP Status " +
-                            xhr.status +
-                            " - Response: " +
-                            xhr.responseText;
-                    }
+
+<div class="footer">
+    <p>
+        © 2024 1rpc.dev by
+        <a
+                href="https://github.com/huahuayu"
+                target="_blank"
+                rel="noopener noreferrer"
+        >Shiming</a
+        >
+    </p>
+</div>
+
+<script>
+    function sendRequest() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "https://1rpc.dev/chain/1", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                var responseContainer = document.getElementById("response");
+                if (xhr.status === 200) {
+                    // Convert JSON to a formatted string and then replace special HTML characters
+                    var formattedJson = JSON.stringify(
+                        JSON.parse(xhr.responseText),
+                        null,
+                        4 // Indentation spaces
+                    )
+                        .replace(/&/g, "&amp;")
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;");
+                    // Set the formatted JSON as innerHTML
+                    responseContainer.innerHTML = "<pre>" + formattedJson + "</pre>";
+                } else {
+                    responseContainer.textContent =
+                        "Failed: HTTP Status " +
+                        xhr.status +
+                        " - Response: " +
+                        xhr.responseText;
                 }
-            };
-            var data = document.getElementById("jsonInput").value;
-            try {
-                JSON.parse(data); // Validates JSON input
-                xhr.send(data);
-            } catch (e) {
-                document.getElementById("response").textContent =
-                    "Invalid JSON format: " + e.message;
             }
+        };
+        var data = document.getElementById("jsonInput").value;
+        try {
+            JSON.parse(data); // Validates JSON input
+            xhr.send(data);
+        } catch (e) {
+            document.getElementById("response").textContent =
+                "Invalid JSON format: " + e.message;
         }
-    </script>
+    }
+</script>
 </body>
 </html>

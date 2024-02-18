@@ -1,12 +1,16 @@
 # 1rpc 
 
+Free RPC *https://1rpc.dev/chain/$chainID* for all ethereum-EVM chains.
+
+## Introduction
+
 There are many free evm rpcs on the web (you can find them [here](https://chainlist.org)).
 
 1rpc integrate them all, which provide higher availability, better performance, and better privacy.
 
 Currently, on 15,Feb,2024, there are 1276 chains with 2693 free rpcs are integrated, and the number is growing.
 
-https://1rpc.dev is the public gateway, you can use it directly.
+https://1rpc.dev is the public gateway, you can use it directly or deploy your own.
 
 ### What's the problem with free rpcs
 
