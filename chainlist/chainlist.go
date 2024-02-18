@@ -11,6 +11,7 @@ import (
 	"math/big"
 	"net/http"
 	"sort"
+	"strings"
 )
 
 // ChainList is the http get response from https://chainid.network/chains.json
@@ -156,6 +157,15 @@ func GetAllChainInfo() (ChainList, map[int64]*ChainInfo, map[int64]rpc.RPCs, err
 		if chainDetail, ok := llamaChainDetails[chain.ChainID]; ok {
 			chain.LlamaChainDetail = chainDetail
 			mergeRpcInfo(chain, chainDetail, flags.AdditionalRPCs[chain.ChainID])
+		}
+	}
+
+	// Exclude 1rpc.dev/* from the RPC list
+	for _, chain := range chainList {
+		for i, rpc := range chain.RPC {
+			if strings.Contains(rpc, "1rpc.dev") {
+				chain.RPC = append(chain.RPC[:i], chain.RPC[i+1:]...)
+			}
 		}
 	}
 
