@@ -301,6 +301,16 @@ func cacheMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// Call the next middleware function
 		next.ServeHTTP(w, r)
 
+		// Verify if the response is valid JSON & result is not null
+		var result map[string]interface{}
+		err := json.Unmarshal(buffer.Bytes(), &result)
+		if err != nil {
+			return
+		}
+		if result["result"] == nil || result["result"] == "" || result["result"] == "null" {
+			return
+		}
+
 		// Store the response in the cache
 		responseCache.Set(cacheKey, buffer.Bytes(), time.Duration(*flags.CacheTTL)*time.Minute)
 	}
